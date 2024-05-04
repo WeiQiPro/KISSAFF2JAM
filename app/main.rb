@@ -77,7 +77,7 @@ def draw_sprite_stack sprite
   stack
 end
 
-def create_sprite(x, y, z, angle, stack, slw, slh, path, name)
+def create_sprite(x, y, z, angle, stack, slice_w, slice_h, path, render_target)
   sprite = {
               x: x,
               y: y,
@@ -85,15 +85,75 @@ def create_sprite(x, y, z, angle, stack, slw, slh, path, name)
               a: angle, #starting angle or facing direction
               stack: stack, #total slices
               direction: :vertical, # based on how the sprite sheet is made vertical or horizontals / not implemented
-              w: 96, #slice width
-              h: 58, #slice height
-              source: "sprites/house_stack.png", # sprite path
-              path: :house_stack #for render_targets / not implemented
+              w: slice_w, #slice width
+              h: slice_h, #slice height
+              source: path, # sprite path
+              rt: render_target #for render_targets
   }
 
   sprite
 end
 
+# def draw_sprite_target sprite
+#   wts = world_to_screen(sprite.x, sprite.y, sprite.z, sprite.a)
+  
+#   #don't draw if scale is less than 0
+#   if wts && wts[:scale] > 0 
+#     return {
+#         x: wts[:x],
+#         y: wts[:y],
+#         w: sprite[:w] * wts[:scale],
+#         h: sprite[:h] * wts[:scale],
+#         path: sprite.rt,
+#         angle: wts.angle #should always face the direction it started
+#     }
+#   end
+# end
+
+# def create_sprite_target(x, y, z, angle, stack, slice_w, slice_h, path, render_target, args)
+#   sprite = {
+#     x: x,
+#     y: y,
+#     z: z,
+#     a: angle, #starting angle or facing direction
+#     stack: stack, #total slices
+#     direction: :vertical, # based on how the sprite sheet is made vertical or horizontals / not implemented
+#     w: slice_w, #slice width
+#     h: slice_h, #slice height
+#     source: path, # sprite path
+#     rt: render_target #for render_targets
+#   }
+
+
+#   wts = world_to_screen(x, y, z, angle)
+
+#   rt = args.outputs[render_target]
+#   rt.w = slice_w * wts.scale
+#   rt.h = slice_h * wts.scale
+
+#   stack.times do |index|
+#     rt.sprites << {
+#       x: 0,
+#       y: 0 + (index * 2),
+#       w: slice_w * wts.scale,
+#       h: slice_h * wts.scale,
+#       path: "sprites/house_stack.png",
+#       source_x: 0,
+#       source_y: slice_h * index,
+#       source_w: slice_w,
+#       source_h: slice_h,
+#       angle: angle
+#     }
+#   end
+
+#   rt.w = slice_w * wts.scale
+#   rt.h = slice_h * wts.scale
+
+#   puts rt.sprites
+#   puts sprite
+
+#   sprite
+# end
 
 $CAM = {
   x: 0,
@@ -103,23 +163,25 @@ $CAM = {
   zfar: 100,
   znear: 10,
   zfarnear: 1 /(100 - 10),
-  pitch: -45, #top down view
+  pitch: -30, #top down view
   angle: 0,
   y_offset: 0,
   x_offset: 0
 }
 
-$house = create_sprite(0, 0, 100, 45, 49, 96, 58, "/sprites/house_stack.png", :house_stack)
-$house2 = create_sprite(200, 200, 100, 90, 49, 96, 58, "/sprites/house_stack.png", :house_stack)
-
 
 
 def tick args
 
+  if args.tick_count == 0
+    args.state.house ||= create_sprite(0, 0, 100, 45, 49, 96, 58, "sprites/house_stack.png", :house_stack)
+    # args.state.house2 ||= create_sprite_target(200, 200, 100, 90, 49, 96, 58, "sprites/house_stack.png", :house_stack_two, args)
+    puts args.state.house2
+  end
+
   controls(args.inputs.keyboard);
 
-  args.outputs.sprites << {x: $CAM.x_offset, y: $CAM.y_offset , w: 10, h: 10, path: :pixel, r: 125, g: 125, b: 125 }
-  args.outputs.sprites << draw_sprite_stack($house)
-  args.outputs.sprites << draw_sprite_stack($house2)
+  args.outputs.sprites << draw_sprite_stack(args.state.house)
+  # args.outputs.sprites << draw_sprite_target(args.state.house2)
   args.outputs.debug << "CAM Angle: #{$CAM.angle}"
 end
