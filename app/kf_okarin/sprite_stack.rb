@@ -2,6 +2,9 @@ module KfOkarin
   class SpriteStack
     MAX_RENDER_TARGET_H = 16_384
 
+    # For debugging purposes
+    attr_reader :sprite_sheet_sprites
+
     def initialize(sprites)
       @sprites = sprites
       validate_sprites
@@ -15,12 +18,18 @@ module KfOkarin
       @sprite_sheet_w = (@sprites.size / @sprite_sheet_row_count).ceil * @sprite_size
       @sprite_sheet_h = @sprite_size * [@sprites.size, @sprite_sheet_row_count].min
       @sprite_sheet_target_name = :"sprite_stack_#{object_id}_sprite_sheet"
+      @sprite_sheet_sprites = @sprites.size.times.map { |z|
+        source_x, source_y = sprite_sheet_cell_position(z)
+        {
+          w: @sprite_size, h: @sprite_size,
+          path: @sprite_sheet_target_name,
+          source_x: source_x,
+          source_y: source_y,
+          source_w: @sprite_size,
+          source_h: @sprite_size,
+        }
+      }
       @last_rendered_perspective = nil
-    end
-
-    # For debugging purposes
-    def sprite_sheet
-      { path: @sprite_sheet_target_name, w: @sprite_sheet_w, h: @sprite_sheet_h }
     end
 
     def render(args, x:, y:, perspective:)
@@ -34,15 +43,11 @@ module KfOkarin
       rendered_y = y - rendered_h.idiv(2)
       pitch_cos = Math.cos(perspective.pitch.to_radians)
 
-      @sprites.each_with_index { |sprite, z|
+      @sprite_sheet_sprites.each_with_index { |sprite, z|
         perspective.scale.times { |scale_offset|
           args.outputs.primitives << {
+            **sprite,
             x: rendered_x, y: rendered_y + (z * pitch_cos * scale) + scale_offset, w: rendered_w, h: rendered_h,
-            path: @sprite_sheet_target_name,
-            source_x: z.idiv(@sprite_sheet_row_count) * @sprite_size,
-            source_y: (z % @sprite_sheet_row_count) * @sprite_size,
-            source_w: @sprite_size,
-            source_h: @sprite_size,
           }.sprite!
         }
       }
@@ -67,8 +72,7 @@ module KfOkarin
       yaw = -89 if yaw == -90
 
       @sprites.each_with_index do |sprite, z|
-        cell_x = z.idiv(@sprite_sheet_row_count) * @sprite_size
-        cell_y = (z % @sprite_sheet_row_count) * @sprite_size
+        cell_x, cell_y = sprite_sheet_cell_position(z)
         render_target.sprites << {
           x: cell_x + @sprite_offset_x,
           y: cell_y + @sprite_offset_y,
@@ -76,6 +80,13 @@ module KfOkarin
           **sprite
         }
       end
+    end
+
+    def sprite_sheet_cell_position(z)
+      [
+        z.idiv(@sprite_sheet_row_count) * @sprite_size,
+        (z % @sprite_sheet_row_count) * @sprite_size
+      ]
     end
   end
 end
