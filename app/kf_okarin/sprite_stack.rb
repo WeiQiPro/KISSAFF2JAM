@@ -18,6 +18,7 @@ module KfOkarin
       @last_rendered_perspective = nil
     end
 
+    # For debugging purposes
     def sprite_sheet
       { path: @sprite_sheet_target_name, w: @sprite_sheet_w, h: @sprite_sheet_h }
     end
@@ -25,6 +26,7 @@ module KfOkarin
     def render(args, x:, y:, perspective:)
       rebuild_sprite_sheet(args, yaw: perspective.yaw) if @last_rendered_perspective&.yaw != perspective.yaw
 
+      # TODO: Memoize final rendered sprite, too
       scale = perspective.scale
       rendered_w = @sprite_size * scale
       rendered_h = rendered_w * Math.sin(perspective.pitch.to_radians)
