@@ -60,6 +60,9 @@ module KfOkarin
       render_target = args.outputs[@sprite_sheet_target_name]
       render_target.width = @sprite_sheet_w
       render_target.height = @sprite_sheet_h
+      # for some reason it looks really ugly when exactly at a yaw of 90/-90 - so let's just ignore those
+      yaw = 89 if yaw == 90
+      yaw = -89 if yaw == -90
 
       @sprites.each_with_index do |sprite, z|
         cell_x = z.idiv(@sprite_sheet_row_count) * @sprite_size
