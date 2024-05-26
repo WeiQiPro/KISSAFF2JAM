@@ -38,7 +38,7 @@ module KfOkarin
       # TODO: Memoize final rendered sprite, too
       scale = perspective.scale
       rendered_w = @sprite_size * scale
-      rendered_h = rendered_w * Math.sin(perspective.pitch.to_radians)
+      rendered_h = perspective.transform_y_distance(@sprite_size)
       rendered_x = x - rendered_w.idiv(2)
       rendered_y = y - rendered_h.idiv(2)
       pitch_cos = Math.cos(perspective.pitch.to_radians)
