@@ -31,10 +31,12 @@ def tick(args)
     # args.outputs.sprites << {x: $world.camera.position.x, y: $world.camera.position.y, w: 10, h: 10, path: :pixel, r: 0, g: 0, b: 0 }
   # debugger(args)
 
-  args.state.house ||= build_sprite_stack_from(
-    path: 'sprites/house_stack.png',
-    w: 95, h: 58, sprite_count: 49
-  )
+  args.state.models ||= {
+    house: build_sprite_stack_from(
+      path: 'sprites/house_stack.png',
+      w: 95, h: 58, sprite_count: 49
+    )
+  }
   camera = args.state.camera ||= KfOkarin::Camera.new
 
   perspective = camera.perspective
@@ -61,7 +63,8 @@ def tick(args)
     )
   end
 
-  args.state.house.render(args, x: 640, y: 360, perspective: perspective)
+  house = args.state.models[:house]
+  house.render(args, x: 640, y: 360, perspective: perspective)
 
   args.outputs.debug.watch $gtk.current_framerate
   args.outputs.debug << "Pitch: #{perspective.pitch}"
