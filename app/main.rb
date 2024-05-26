@@ -31,6 +31,10 @@ def tick(args)
     # args.outputs.sprites << {x: $world.camera.position.x, y: $world.camera.position.y, w: 10, h: 10, path: :pixel, r: 0, g: 0, b: 0 }
   # debugger(args)
 
+  args.state.debug_settings ||= {
+    grid_visible: false
+  }
+  args.state.grid_size ||= 50
   args.state.models ||= {
     house: build_sprite_stack_from(
       path: 'sprites/house_stack.png',
@@ -44,6 +48,9 @@ def tick(args)
 
   handle_update_perpective(args)
   handle_movement(args)
+  handle_debug_settings(args)
+
+  render_grid(args, size: args.state.grid_size) if args.state.debug_settings[:grid_visible]
 
   args.state.objects.each do |object|
     model = args.state.models[object[:model]]
@@ -51,11 +58,13 @@ def tick(args)
     model.render(args, **render_args)
   end
 
+  perspective = camera.perspective
   args.outputs.debug.watch $gtk.current_framerate
   args.outputs.debug << 'Camera Center: %.2f, %.2f' % [camera.center[:x], camera.center[:y]]
   args.outputs.debug << "Pitch: #{perspective.pitch}"
   args.outputs.debug << "Yaw: #{perspective.yaw}"
   args.outputs.debug << "Scale: #{perspective.scale}"
+  args.outputs.debug << "(G)rid visible: #{args.state.debug_settings[:grid_visible]}"
 end
 
 def handle_update_perpective(args)
@@ -96,6 +105,41 @@ def handle_movement(args)
   elsif keyboard.key_held.a
     camera.move_right(-1)
   end
+end
+
+def handle_debug_settings(args)
+  keyboard = args.inputs.keyboard
+  if keyboard.key_down.g
+    args.state.debug_settings[:grid_visible] = !args.state.debug_settings[:grid_visible]
+  end
+end
+
+def render_grid(args, size: 50)
+  camera = args.state.camera
+  center_x = camera.center[:x].idiv(size) * size
+  center_y = camera.center[:y].idiv(size) * size
+
+  offset = 0
+  loop do
+    render_horizontal_grid_line(args.outputs, camera, center_x + offset, center_y)
+    render_horizontal_grid_line(args.outputs, camera, center_x - offset - size, center_y)
+    render_vertical_grid_line(args.outputs, camera, center_x, center_y + offset)
+    render_vertical_grid_line(args.outputs, camera, center_x, center_y - offset - size)
+    offset += size
+    break if offset > 1000
+  end
+end
+
+def render_horizontal_grid_line(outputs, camera, x, y)
+  start = camera.transform_object(x: x, y: y - 2000)
+  finish = camera.transform_object(x: x, y: y + 2000)
+  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 255, g: 0, b: 0 }.line
+end
+
+def render_vertical_grid_line(outputs, camera, x, y)
+  start = camera.transform_object(x: x - 2000, y: y)
+  finish = camera.transform_object(x: x + 2000, y: y)
+  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 0, g: 0, b: 255 }.line
 end
 
 $state.objects = nil
