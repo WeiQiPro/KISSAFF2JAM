@@ -42,6 +42,24 @@ def tick(args)
   ]
   camera = args.state.camera ||= KfOkarin::Camera.new
 
+  handle_update_perpective(args)
+  handle_movement(args)
+
+  args.state.objects.each do |object|
+    model = args.state.models[object[:model]]
+    render_args = camera.transform_object(object)
+    model.render(args, **render_args)
+  end
+
+  args.outputs.debug.watch $gtk.current_framerate
+  args.outputs.debug << 'Camera Center: %.2f, %.2f' % [camera.center[:x], camera.center[:y]]
+  args.outputs.debug << "Pitch: #{perspective.pitch}"
+  args.outputs.debug << "Yaw: #{perspective.yaw}"
+  args.outputs.debug << "Scale: #{perspective.scale}"
+end
+
+def handle_update_perpective(args)
+  camera = args.state.camera
   perspective = camera.perspective
   mouse = args.inputs.mouse
   drag_start = args.state.drag_start
@@ -62,7 +80,10 @@ def tick(args)
       scale: camera.perspective.scale + mouse.wheel.y.sign
     )
   end
+end
 
+def handle_movement(args)
+  camera = args.state.camera
   keyboard = args.inputs.keyboard
   if keyboard.key_held.w
     camera.move_forward(1)
@@ -75,18 +96,6 @@ def tick(args)
   elsif keyboard.key_held.a
     camera.move_right(-1)
   end
-
-  args.state.objects.each do |object|
-    model = args.state.models[object[:model]]
-    render_args = camera.transform_object(object)
-    model.render(args, **render_args)
-  end
-
-  args.outputs.debug.watch $gtk.current_framerate
-  args.outputs.debug << 'Camera Center: %.2f, %.2f' % [camera.center[:x], camera.center[:y]]
-  args.outputs.debug << "Pitch: #{perspective.pitch}"
-  args.outputs.debug << "Yaw: #{perspective.yaw}"
-  args.outputs.debug << "Scale: #{perspective.scale}"
 end
 
 $state.objects = nil
