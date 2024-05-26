@@ -74,3 +74,5 @@ def tick(args)
   args.outputs.debug << "Yaw: #{perspective.yaw}"
   args.outputs.debug << "Scale: #{perspective.scale}"
 end
+
+$state.objects = nil
