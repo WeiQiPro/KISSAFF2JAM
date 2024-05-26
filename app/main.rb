@@ -38,7 +38,7 @@ def tick(args)
     )
   }
   args.state.objects ||= [
-    { x: 0, y: 0, model: :house }
+    { x: 0, y: 50, model: :house }
   ]
   camera = args.state.camera ||= KfOkarin::Camera.new
 
@@ -63,6 +63,19 @@ def tick(args)
     )
   end
 
+  keyboard = args.inputs.keyboard
+  if keyboard.key_held.w
+    camera.move_forward(1)
+  elsif keyboard.key_held.s
+    camera.move_forward(-1)
+  end
+
+  if keyboard.key_held.d
+    camera.move_right(1)
+  elsif keyboard.key_held.a
+    camera.move_right(-1)
+  end
+
   args.state.objects.each do |object|
     model = args.state.models[object[:model]]
     render_args = camera.transform_object(object)
@@ -70,6 +83,7 @@ def tick(args)
   end
 
   args.outputs.debug.watch $gtk.current_framerate
+  args.outputs.debug << 'Camera Center: %.2f, %.2f' % [camera.center[:x], camera.center[:y]]
   args.outputs.debug << "Pitch: #{perspective.pitch}"
   args.outputs.debug << "Yaw: #{perspective.yaw}"
   args.outputs.debug << "Scale: #{perspective.scale}"

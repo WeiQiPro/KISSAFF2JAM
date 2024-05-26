@@ -28,6 +28,13 @@ module KfOkarin
       }
     end
 
+    def unrotate_coordinates(x:, y:)
+      {
+        x: x * @yaw_cos + y * @yaw_sin,
+        y: -x * @yaw_sin + y * @yaw_cos
+      }
+    end
+
     def transform_coordinates(x:, y:, z: 0)
       rotated = rotate_coordinates(x: x, y: y)
       y = transform_y_distance(rotated[:y])
