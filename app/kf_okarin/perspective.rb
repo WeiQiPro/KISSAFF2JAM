@@ -8,5 +8,13 @@ module KfOkarin
       @pitch = pitch.clamp(15, 90)
       @scale = [1, scale].max.to_i
     end
+
+    def with(yaw: nil, pitch: nil, scale: nil)
+      self.class.new(
+        yaw: yaw || @yaw,
+        pitch: pitch || @pitch,
+        scale: scale || @scale
+      )
+    end
   end
 end

@@ -45,8 +45,7 @@ def tick(args)
   if drag_start
     new_yaw = (drag_start[:perspective].yaw - (drag_start[:x] - mouse.x) * 0.5).to_i
     new_pitch = (drag_start[:perspective].pitch + (drag_start[:y] - mouse.y) * 0.5).to_i
-    camera.perspective = KfOkarin::Perspective.new(
-      scale: drag_start[:perspective].scale,
+    camera.perspective = drag_start[:perspective].with(
       yaw: new_yaw,
       pitch: new_pitch
     )
@@ -56,10 +55,8 @@ def tick(args)
   end
 
   if mouse.wheel
-    camera.perspective = KfOkarin::Perspective.new(
-      scale: perspective.scale + mouse.wheel.y.sign,
-      yaw: perspective.yaw,
-      pitch: perspective.pitch
+    camera.perspective = camera.perspective.with(
+      scale: camera.perspective.scale + mouse.wheel.y.sign
     )
   end
 
