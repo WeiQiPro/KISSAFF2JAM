@@ -11,15 +11,13 @@ module KfOkarin
     end
 
     def transform_object(object)
-      relative_x = object[:x] - @center_x
-      relative_y = object[:y] - @center_y
-      yaw_sin = Math.sin(@perspective.yaw.to_radians)
-      yaw_cos = Math.cos(@perspective.yaw.to_radians)
-      rotated_x = relative_x * yaw_cos - relative_y * yaw_sin
-      rotated_y = relative_x * yaw_sin + relative_y * yaw_cos
+      transformed = @perspective.transform_coordinates(
+        x: object[:x] - @center_x,
+        y: object[:y] - @center_y,
+      )
       {
-        x: 640 + rotated_x * @perspective.scale,
-        y: 360 + @perspective.transform_y_distance(rotated_y),
+        x: 640 + transformed[:x],
+        y: 360 + transformed[:y],
         perspective: @perspective
       }
     end

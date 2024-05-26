@@ -5,6 +5,8 @@ module KfOkarin
     def initialize(yaw: 0, pitch: 30, scale: 1)
       # convert yaw to range -180..180
       @yaw = (yaw + 180) % 360 - 180
+      @yaw_sin = Math.sin(@yaw.to_radians)
+      @yaw_cos = Math.cos(@yaw.to_radians)
       @pitch = pitch.clamp(15, 90)
       @pitch_sin = Math.sin(@pitch.to_radians)
       @pitch_cos = Math.cos(@pitch.to_radians)
@@ -17,6 +19,20 @@ module KfOkarin
         pitch: pitch || @pitch,
         scale: scale || @scale
       )
+    end
+
+    def transform_coordinates(x:, y:, z: 0)
+      # TODO z
+      rotated_x = x * @yaw_cos - y * @yaw_sin
+      rotated_y = x * @yaw_sin + y * @yaw_cos
+      {
+        x: transform_x_distance(rotated_x),
+        y: transform_y_distance(rotated_y)
+      }
+    end
+
+    def transform_x_distance(x)
+      x * @scale
     end
 
     def transform_y_distance(y)
