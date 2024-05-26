@@ -7,6 +7,7 @@ module KfOkarin
       @yaw = (yaw + 180) % 360 - 180
       @pitch = pitch.clamp(15, 90)
       @pitch_sin = Math.sin(@pitch.to_radians)
+      @pitch_cos = Math.cos(@pitch.to_radians)
       @scale = [1, scale].max.to_i
     end
 
@@ -20,6 +21,10 @@ module KfOkarin
 
     def transform_y_distance(y)
       y * @scale * @pitch_sin
+    end
+
+    def transform_z_distance(z)
+      z * @scale * @pitch_cos
     end
   end
 end

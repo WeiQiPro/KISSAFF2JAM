@@ -41,13 +41,12 @@ module KfOkarin
       rendered_h = perspective.transform_y_distance(@sprite_size)
       rendered_x = x - rendered_w.idiv(2)
       rendered_y = y - rendered_h.idiv(2)
-      pitch_cos = Math.cos(perspective.pitch.to_radians)
 
       @sprite_sheet_sprites.each_with_index { |sprite, z|
         perspective.scale.times { |scale_offset|
           args.outputs.primitives << {
             **sprite,
-            x: rendered_x, y: rendered_y + (z * pitch_cos * scale) + scale_offset, w: rendered_w, h: rendered_h,
+            x: rendered_x, y: rendered_y + perspective.transform_z_distance(z) + scale_offset, w: rendered_w, h: rendered_h,
           }.sprite!
         }
       }
