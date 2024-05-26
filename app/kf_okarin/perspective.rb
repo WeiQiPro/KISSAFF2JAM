@@ -22,12 +22,13 @@ module KfOkarin
     end
 
     def transform_coordinates(x:, y:, z: 0)
-      # TODO z
       rotated_x = x * @yaw_cos - y * @yaw_sin
       rotated_y = x * @yaw_sin + y * @yaw_cos
+      y = transform_y_distance(rotated_y)
+      y += transform_z_distance(z) if z != 0
       {
         x: transform_x_distance(rotated_x),
-        y: transform_y_distance(rotated_y)
+        y: y
       }
     end
 
