@@ -37,6 +37,9 @@ def tick(args)
       w: 95, h: 58, sprite_count: 49
     )
   }
+  args.state.objects ||= [
+    { x: 0, y: 0, model: :house }
+  ]
   camera = args.state.camera ||= KfOkarin::Camera.new
 
   perspective = camera.perspective
@@ -60,8 +63,11 @@ def tick(args)
     )
   end
 
-  house = args.state.models[:house]
-  house.render(args, x: 640, y: 360, perspective: perspective)
+  args.state.objects.each do |object|
+    model = args.state.models[object[:model]]
+    render_args = camera.transform_object(object)
+    model.render(args, **render_args)
+  end
 
   args.outputs.debug.watch $gtk.current_framerate
   args.outputs.debug << "Pitch: #{perspective.pitch}"

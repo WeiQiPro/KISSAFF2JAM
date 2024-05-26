@@ -9,5 +9,9 @@ module KfOkarin
       @center_y = 0
       @perspective = Perspective.new(scale: 4, pitch: 20, yaw: 100)
     end
+
+    def transform_object(object)
+      { x: 640, y: 360, perspective: @perspective }
+    end
   end
 end
