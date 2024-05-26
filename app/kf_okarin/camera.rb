@@ -14,11 +14,10 @@ module KfOkarin
         x: object[:x] - @center[:x],
         y: object[:y] - @center[:y]
       )
-      {
+      object.merge(
         x: 640 + transformed[:x],
-        y: 360 + transformed[:y],
-        perspective: @perspective
-      }
+        y: 360 + transformed[:y]
+      )
     end
 
     def move_forward(distance)

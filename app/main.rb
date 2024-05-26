@@ -35,15 +35,15 @@ def tick(args)
     grid_visible: false
   }
   args.state.grid_size ||= 50
-  args.state.models ||= {
-    house: build_sprite_stack_from(
-      path: 'sprites/house_stack.png',
-      w: 95, h: 58, sprite_count: 49
-    )
+  args.state.objects ||= 12.times.map { |i|
+    angle = i * 30
+    {
+      x: Math.cos(angle.to_radians) * 200,
+      y: Math.sin(angle.to_radians) * 200,
+      model: build_house_model,
+      angle: angle
+    }
   }
-  args.state.objects ||= [
-    { x: 0, y: 50, model: :house }
-  ]
   camera = args.state.camera ||= KfOkarin::Camera.new
 
   handle_update_perpective(args)
@@ -52,10 +52,16 @@ def tick(args)
 
   render_grid(args, size: args.state.grid_size) if args.state.debug_settings[:grid_visible]
 
-  args.state.objects.each do |object|
-    model = args.state.models[object[:model]]
-    render_args = camera.transform_object(object)
-    model.render(args, **render_args)
+  transformed_objects = args.state.objects.map { |object|
+    camera.transform_object(object)
+  }.sort_by { |object| -object[:y] }
+  transformed_objects.each do |object|
+    object[:model].render(
+      args,
+      x: object[:x],
+      y: object[:y],
+      perspective: camera.perspective.with(yaw: object[:angle] + camera.perspective.yaw)
+    )
   end
 
   perspective = camera.perspective
@@ -65,6 +71,13 @@ def tick(args)
   args.outputs.debug << "Yaw: #{perspective.yaw}"
   args.outputs.debug << "Scale: #{perspective.scale}"
   args.outputs.debug << "(G)rid visible: #{args.state.debug_settings[:grid_visible]}"
+end
+
+def build_house_model
+  build_sprite_stack_from(
+    path: 'sprites/house_stack.png',
+    w: 95, h: 58, sprite_count: 49
+  )
 end
 
 def handle_update_perpective(args)
