@@ -146,13 +146,13 @@ end
 def render_horizontal_grid_line(outputs, camera, x, y)
   start = camera.transform_object(x: x, y: y - 2000)
   finish = camera.transform_object(x: x, y: y + 2000)
-  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 255, g: 0, b: 0 }.line
+  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 255, g: 0, b: 0 }.line!
 end
 
 def render_vertical_grid_line(outputs, camera, x, y)
   start = camera.transform_object(x: x - 2000, y: y)
   finish = camera.transform_object(x: x + 2000, y: y)
-  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 0, g: 0, b: 255 }.line
+  outputs.primitives << { x: start[:x], y: start[:y], x2: finish[:x], y2: finish[:y], r: 0, g: 0, b: 255 }.line!
 end
 
 $state.objects = nil
