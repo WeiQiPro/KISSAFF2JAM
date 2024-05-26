@@ -43,10 +43,11 @@ module KfOkarin
       rendered_y = y - rendered_h.idiv(2)
 
       @sprite_sheet_sprites.each_with_index { |sprite, z|
+        y = rendered_y + perspective.transform_z_distance(z)
         perspective.scale.times { |scale_offset|
           args.outputs.primitives << {
             **sprite,
-            x: rendered_x, y: rendered_y + perspective.transform_z_distance(z) + scale_offset, w: rendered_w, h: rendered_h,
+            x: rendered_x, y: y + scale_offset, w: rendered_w, h: rendered_h,
           }.sprite!
         }
       }
